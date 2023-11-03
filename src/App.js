@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const carNames = [
@@ -25,14 +25,25 @@ function CarAgent({ car, onRemove }) {
   );
 }
 
-function Garage({ onAddCar, cars, onRemoveCar }) {
+function FlashingLight() {
+  const hasProblem = Math.random() < 0.5;
+
+  const lightClass = `FlashingLight ${hasProblem ? 'Red' : 'Green'}`;
+
+  return <div className={lightClass}></div>;
+}
+
+function Garage({ garageIndex, onAddCar, cars, onRemoveCar }) {
   return (
     <div className="Garage">
-      <h2>Garage</h2>
-      <button onClick={onAddCar} className="GarageButton">Add Car</button>
+      <h2>Garage {garageIndex + 1}</h2>
+      <button onClick={() => onAddCar(garageIndex)} className="GarageButton">
+        Add Car
+      </button>
+      <FlashingLight/>
       <div className="CarAgents">
         {cars.map((car, index) => (
-          <CarAgent key={index} car={car} onRemove={() => onRemoveCar(car)} />
+          <CarAgent key={index} car={car} onRemove={() => onRemoveCar(garageIndex, car)} />
         ))}
       </div>
     </div>
@@ -41,7 +52,16 @@ function Garage({ onAddCar, cars, onRemoveCar }) {
 
 function App() {
   const [garages, setGarages] = useState([[]]);
-  const [showBuyGarageAlert, setShowBuyGarageAlert] = useState(false);
+
+  useEffect(() => {
+    if (garages.every(garage => garage.length === 5)) {
+      addNewGarage();
+    }
+  }, [garages]);
+
+  const addNewGarage = () => {
+    setGarages([...garages, []]);
+  }
 
   const addCarToGarage = (garageIndex) => {
     if (garages[garageIndex].length < 5) {
@@ -49,8 +69,6 @@ function App() {
       const randomCarName = carNames[Math.floor(Math.random() * carNames.length)];
       updatedGarages[garageIndex] = [...updatedGarages[garageIndex], { model: randomCarName }];
       setGarages(updatedGarages);
-    } else if (garages.every(garage => garage.length === 5)) {
-      setShowBuyGarageAlert(true);
     }
   }
 
@@ -60,11 +78,6 @@ function App() {
     setGarages(updatedGarages);
   }
 
-  const buyNewGarage = () => {
-    setGarages([...garages, []]);
-    setShowBuyGarageAlert(false);
-  }
-
   return (
     <div className="App">
       <h1>Sophisticated Garage System</h1>
@@ -72,6 +85,7 @@ function App() {
         {garages.map((garage, index) => (
           <div key={index}>
             <Garage
+              garageIndex={index}
               cars={garage}
               onAddCar={() => addCarToGarage(index)}
               onRemoveCar={(car) => removeCarFromGarage(index, car)}
@@ -79,13 +93,6 @@ function App() {
           </div>
         ))}
       </div>
-      {showBuyGarageAlert && (
-        <div className="BuyGarageAlert">
-          <p>Your garages are full. Do you want to buy a new garage?</p>
-          <button onClick={buyNewGarage}>Yes</button>
-          <button onClick={() => setShowBuyGarageAlert(false)}>No</button>
-        </div>
-      )}
     </div>
   );
 }

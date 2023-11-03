@@ -89,3 +89,45 @@ h1 {
   background-color: #ff4136;
   color: #fff;
 }
+
+.FlashingLight {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 10px;
+}
+
+.FlashingLight.Green {
+  background-color: green;
+  animation: flashGreen 1s linear infinite;
+}
+
+.FlashingLight.Red {
+  background-color: red;
+  animation: flashRed 1s linear infinite;
+}
+
+@keyframes flashGreen {
+  0% {
+    background-color: green;
+  }
+  50% {
+    background-color: #fff;
+  }
+  100% {
+    background-color: green;
+  }
+}
+
+@keyframes flashRed {
+  0% {
+    background-color: red;
+  }
+  50% {
+    background-color: #fff;
+  }
+  100% {
+    background-color: red;
+  }
+}
